@@ -13,3 +13,4 @@ export { ArtifactList } from "./ArtifactList";
 export { ActionList } from "./ActionList";
 export { ExportButtons } from "./ExportButtons";
 export { DemoLoader } from "./DemoLoader";
+export { AuditHistory } from "./AuditHistory";

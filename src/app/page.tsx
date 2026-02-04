@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import type { Artifact, ArtifactType } from "@/domain";
 import {
   ingestPastedText,
@@ -123,13 +124,22 @@ export default function Home() {
                 Surface underutilized features before they become technical debt
               </p>
             </div>
-            {audit && (
-              <div className="text-right">
+            <div className="flex items-center gap-4">
+              {audit && (
                 <div className="font-mono text-sm text-zinc-500">
                   {audit.summary.auditId}
                 </div>
-              </div>
-            )}
+              )}
+              <Link
+                href="/history"
+                className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                History
+              </Link>
+            </div>
           </div>
         </div>
       </header>
