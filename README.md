@@ -35,15 +35,26 @@ This is **explainable intelligence**—every diagnosis comes with cited evidence
 - **Action Recommendations**: Copyable actions per diagnosis
 - **Export**: Plain text and printable HTML reports
 
-## What Phase 1 Intentionally Does NOT Do
+## What Phase 2 Adds (Repeatability & Retention)
+
+- **Audit History**: All audits saved to IndexedDB with browse, rename, delete
+- **Auto-Save Toggle**: Run audits once, save automatically (or manually)
+- **Artifact Sets**: Named collections for repeatable audit workflows
+- **Audit Compare**: Side-by-side diff showing new/resolved risks, diagnosis changes
+- **Feature Trends**: Sparkline visualization of risk trajectory over time
+- **Executive Narrative**: Template-driven summary for partner sharing (no AI)
+- **Test Suite**: Jest + ts-jest with guardrail tests
+
+## What This Tool Intentionally Does NOT Do
 
 - Connect to analytics platforms
 - Integrate with GitHub, Jira, or other tools
 - Use ML models for feature detection
 - Provide real-time monitoring
 - Require authentication or accounts
+- Use AI for narrative generation (deterministic templates only)
 
-This is by design. Phase 1 proves the diagnostic model works before adding complexity.
+This is by design. Phase 2 proves the repeatability model works before adding integrations.
 
 ---
 
@@ -64,6 +75,19 @@ Open [http://localhost:3000](http://localhost:3000).
 4. Expand features to see evidence and recommendations
 5. Export the report
 
+### Phase 2 Workflows
+
+**Repeatability Flow:**
+1. Run audit → auto-saved to History
+2. Go to `/history` to browse saved audits
+3. Save artifact collection for repeat runs
+4. Compare two audits at `/compare`
+5. View trends at `/trends`
+
+**Partner Sharing Flow:**
+1. Run audit → click "Export" → "Executive Summary"
+2. Or compare two audits → "Export Compare Report"
+
 ---
 
 ## Project Structure
@@ -71,8 +95,10 @@ Open [http://localhost:3000](http://localhost:3000).
 ```
 /src/app       # Next.js app router pages
 /src/domain    # Core feature model and business logic
-/src/analysis  # Diagnostics, heuristics, scoring
+/src/analysis  # Diagnostics, heuristics, scoring, diff, trend
+/src/storage   # IndexedDB persistence layer
 /src/ui        # Reusable UI components
+/tests         # Jest test suite
 /docs          # Project documentation
 ```
 
@@ -85,7 +111,11 @@ Open [http://localhost:3000](http://localhost:3000).
 - `src/analysis/diagnose.ts` - Diagnosis engine
 - `src/analysis/ranking.ts` - Risk ranking and audit generation
 - `src/analysis/actions.ts` - Action recommendations
-- `src/analysis/export.ts` - Report generation
+- `src/analysis/export.ts` - Report generation + executive narrative
+- `src/analysis/diff.ts` - Audit comparison engine
+- `src/analysis/trend.ts` - Feature trend analysis
+- `src/storage/types.ts` - Persistence types
+- `src/storage/indexeddb.ts` - IndexedDB implementation
 
 ---
 
@@ -120,10 +150,17 @@ MIT
 
 ---
 
-## Phase 1 Tag
-
-This release is tagged as `phase-1-foundation`.
+## Release Tags
 
 ```bash
-git checkout phase-1-foundation
+git checkout phase-1-foundation   # Phase 1: Core diagnostic engine
+git checkout phase-2-repeatability # Phase 2: Persistence, compare, trends
 ```
+
+## Running Tests
+
+```bash
+npm test
+```
+
+Tests verify guardrails: risk scores bounded 0-1, audit IDs formatted correctly, graceful handling of edge cases.
