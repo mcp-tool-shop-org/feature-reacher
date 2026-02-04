@@ -20,3 +20,10 @@ export {
   ingestUploadedFile,
   validateArtifact,
 } from "./ingest";
+
+// Feature extraction
+export type { ExtractionResult } from "./extractor";
+export {
+  extractFeaturesFromArtifact,
+  mergeExtractionResults,
+} from "./extractor";
