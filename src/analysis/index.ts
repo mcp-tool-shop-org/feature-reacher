@@ -76,3 +76,7 @@ export {
 
 // Export
 export { generateTextSummary, generateHtmlReport } from "./export";
+
+// Diff engine
+export type { FeatureChangeType, FeatureDiff, AuditDiff } from "./diff";
+export { compareAudits, getNewRisks, getResolvedRisks } from "./diff";
