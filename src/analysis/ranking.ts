@@ -36,6 +36,8 @@ export interface RankedFeature {
  * Audit summary statistics.
  */
 export interface AuditSummary {
+  /** Deterministic audit identifier (AUD-XXXXXX) */
+  auditId: string;
   /** Total features analyzed */
   totalFeatures: number;
   /** Features at each risk level */
@@ -53,6 +55,27 @@ export interface AuditSummary {
   totalEvidence: number;
   /** Timestamp of analysis */
   analyzedAt: string;
+}
+
+/**
+ * Generates a deterministic audit ID based on input content.
+ * Same input always produces same ID.
+ */
+function generateAuditId(
+  featureCount: number,
+  evidenceCount: number,
+  timestamp: string
+): string {
+  // Simple hash based on inputs for determinism
+  const input = `${featureCount}-${evidenceCount}-${timestamp.slice(0, 10)}`;
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  const hexHash = Math.abs(hash).toString(16).toUpperCase().padStart(6, "0");
+  return `AUD-${hexHash.slice(0, 6)}`;
 }
 
 /**
@@ -227,14 +250,17 @@ export function generateAudit(
   };
 
   const topRiskFactors = identifyTopRiskFactors(rankedFeatures);
+  const analyzedAt = new Date().toISOString();
+  const auditId = generateAuditId(features.length, evidence.length, analyzedAt);
 
   const summary: AuditSummary = {
+    auditId,
     totalFeatures: features.length,
     byRiskLevel,
     topRiskFactors,
     artifactsAnalyzed: artifactCount,
     totalEvidence: evidence.length,
-    analyzedAt: new Date().toISOString(),
+    analyzedAt,
   };
 
   return {

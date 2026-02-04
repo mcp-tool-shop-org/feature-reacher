@@ -18,7 +18,13 @@ export function generateTextSummary(audit: AdoptionRiskAudit): string {
   // Header
   lines.push("═".repeat(60));
   lines.push("FEATURE ADOPTION RISK AUDIT");
+  lines.push(`Audit ID: ${summary.auditId}`);
   lines.push("═".repeat(60));
+  lines.push("");
+
+  // Scope disclaimer
+  lines.push("SCOPE: This audit is based on provided artifacts only");
+  lines.push("       (no live usage telemetry).");
   lines.push("");
 
   // Headline
@@ -28,6 +34,7 @@ export function generateTextSummary(audit: AdoptionRiskAudit): string {
   // Summary stats
   lines.push("SUMMARY");
   lines.push("─".repeat(40));
+  lines.push(`Audit ID: ${summary.auditId}`);
   lines.push(`Features Analyzed: ${summary.totalFeatures}`);
   lines.push(`Artifacts Analyzed: ${summary.artifactsAnalyzed}`);
   lines.push(`Evidence Points: ${summary.totalEvidence}`);

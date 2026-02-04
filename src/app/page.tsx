@@ -19,6 +19,7 @@ import {
   AuditSummary,
   FeatureCard,
   ExportButtons,
+  DemoLoader,
 } from "@/ui";
 
 export default function Home() {
@@ -35,10 +36,29 @@ export default function Home() {
           : ingestPastedText({ content, name, type });
 
         setArtifacts((prev) => [...prev, result.artifact]);
-        setAudit(null); // Clear previous audit when new artifact added
+        setAudit(null);
       } catch (error) {
         console.error("Failed to ingest artifact:", error);
       }
+    },
+    []
+  );
+
+  const handleDemoLoad = useCallback(
+    (demoArtifacts: { content: string; name: string }[]) => {
+      const ingested: Artifact[] = [];
+      for (const demo of demoArtifacts) {
+        try {
+          const result = demo.name.includes(".")
+            ? ingestUploadedFile({ content: demo.content, filename: demo.name })
+            : ingestPastedText({ content: demo.content, name: demo.name });
+          ingested.push(result.artifact);
+        } catch (error) {
+          console.error("Failed to ingest demo artifact:", error);
+        }
+      }
+      setArtifacts(ingested);
+      setAudit(null);
     },
     []
   );
@@ -53,30 +73,25 @@ export default function Home() {
 
     setIsAnalyzing(true);
 
-    // Simulate async for UI feedback
     setTimeout(() => {
       try {
-        // Extract features from all artifacts
         const extractionResults = artifacts.map((a) =>
           extractFeaturesFromArtifact(a)
         );
         const merged = mergeExtractionResults(extractionResults);
 
-        // Score all features
         const scores = scoreAllFeatures(
           merged.features,
           merged.evidence,
           artifacts
         );
 
-        // Generate diagnoses
         const diagnoses = diagnoseAllFeatures(
           merged.features,
           scores,
           merged.evidence
         );
 
-        // Generate the audit
         const newAudit = generateAudit(
           merged.features,
           scores,
@@ -99,12 +114,23 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto max-w-5xl px-4 py-6">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-            Feature-Reacher
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Surface underutilized features before they become technical debt
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+                Feature-Reacher
+              </h1>
+              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                Surface underutilized features before they become technical debt
+              </p>
+            </div>
+            {audit && (
+              <div className="text-right">
+                <div className="font-mono text-sm text-zinc-500">
+                  {audit.summary.auditId}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -112,8 +138,21 @@ export default function Home() {
         <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
           {/* Main content */}
           <div className="space-y-6">
+            {/* Processing state */}
+            {isAnalyzing && (
+              <div className="rounded-lg border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-zinc-200 border-t-blue-600" />
+                <h3 className="mt-4 text-lg font-medium text-zinc-900 dark:text-zinc-100">
+                  Analyzing artifacts...
+                </h3>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                  Extracting features, scoring visibility, generating diagnoses
+                </p>
+              </div>
+            )}
+
             {/* Audit results */}
-            {audit && (
+            {audit && !isAnalyzing && (
               <>
                 <AuditSummary
                   summary={audit.summary}
@@ -130,7 +169,7 @@ export default function Home() {
 
                 <div>
                   <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                    At-Risk Features
+                    At-Risk Features ({audit.rankedFeatures.filter((rf) => rf.riskLevel !== "low").length})
                   </h2>
                   <div className="space-y-4">
                     {audit.rankedFeatures
@@ -152,9 +191,24 @@ export default function Home() {
                     {audit.rankedFeatures.filter((rf) => rf.riskLevel !== "low")
                       .length === 0 && (
                       <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center dark:border-green-900 dark:bg-green-900/20">
-                        <p className="text-green-700 dark:text-green-400">
-                          No significant adoption risks detected. Your features
-                          appear well-surfaced!
+                        <svg
+                          className="mx-auto h-10 w-10 text-green-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <h3 className="mt-3 font-medium text-green-800 dark:text-green-300">
+                          No significant adoption risks detected
+                        </h3>
+                        <p className="mt-1 text-sm text-green-700 dark:text-green-400">
+                          Your features appear well-surfaced in the provided artifacts.
                         </p>
                       </div>
                     )}
@@ -164,16 +218,31 @@ export default function Home() {
                 {/* Low risk features (collapsed) */}
                 {audit.rankedFeatures.filter((rf) => rf.riskLevel === "low")
                   .length > 0 && (
-                  <details className="group">
-                    <summary className="cursor-pointer text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                      {
-                        audit.rankedFeatures.filter(
-                          (rf) => rf.riskLevel === "low"
-                        ).length
-                      }{" "}
-                      healthy features (low risk)
+                  <details className="group rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+                    <summary className="cursor-pointer p-4 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+                      <span className="inline-flex items-center gap-2">
+                        <svg
+                          className="h-4 w-4 transition-transform group-open:rotate-90"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                        {
+                          audit.rankedFeatures.filter(
+                            (rf) => rf.riskLevel === "low"
+                          ).length
+                        }{" "}
+                        healthy features (low risk)
+                      </span>
                     </summary>
-                    <div className="mt-4 space-y-4">
+                    <div className="space-y-4 border-t border-zinc-200 p-4 dark:border-zinc-700">
                       {audit.rankedFeatures
                         .filter((rf) => rf.riskLevel === "low")
                         .map((rf) => (
@@ -197,48 +266,56 @@ export default function Home() {
             )}
 
             {/* Empty state */}
-            {!audit && artifacts.length === 0 && (
-              <div className="rounded-lg border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
-                <svg
-                  className="mx-auto h-12 w-12 text-zinc-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <h3 className="mt-4 text-lg font-medium text-zinc-900 dark:text-zinc-100">
-                  No artifacts yet
-                </h3>
-                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                  Upload your product documentation, release notes, or FAQs to
-                  get started.
-                </p>
+            {!audit && !isAnalyzing && artifacts.length === 0 && (
+              <div className="space-y-6">
+                <div className="rounded-lg border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
+                  <svg
+                    className="mx-auto h-12 w-12 text-zinc-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <h3 className="mt-4 text-lg font-medium text-zinc-900 dark:text-zinc-100">
+                    No artifacts yet
+                  </h3>
+                  <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    Upload your product documentation, release notes, or FAQs to
+                    get started.
+                  </p>
+                </div>
+
+                {/* Demo loader */}
+                <DemoLoader onLoad={handleDemoLoad} />
               </div>
             )}
 
             {/* Ready to analyze */}
-            {!audit && artifacts.length > 0 && (
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 text-center dark:border-blue-900 dark:bg-blue-900/20">
-                <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100">
-                  Ready to analyze
-                </h3>
-                <p className="mt-2 text-sm text-blue-700 dark:text-blue-300">
-                  {artifacts.length} artifact{artifacts.length !== 1 ? "s" : ""}{" "}
-                  uploaded. Click below to run the adoption risk audit.
-                </p>
-                <button
-                  onClick={handleAnalyze}
-                  disabled={isAnalyzing}
-                  className="mt-4 rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400"
-                >
-                  {isAnalyzing ? "Analyzing..." : "Run Audit"}
-                </button>
+            {!audit && !isAnalyzing && artifacts.length > 0 && (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 dark:border-blue-900 dark:bg-blue-900/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100">
+                      Ready to analyze
+                    </h3>
+                    <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                      {artifacts.length} artifact{artifacts.length !== 1 ? "s" : ""}{" "}
+                      uploaded. Run the adoption risk audit to identify at-risk features.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleAnalyze}
+                    className="flex-shrink-0 rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                  >
+                    Run Audit
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -247,6 +324,32 @@ export default function Home() {
           <div className="space-y-6">
             <ArtifactUpload onUpload={handleUpload} />
             <ArtifactList artifacts={artifacts} onRemove={handleRemove} />
+
+            {/* Quick actions when audit exists */}
+            {audit && (
+              <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                  Quick Actions
+                </h3>
+                <div className="mt-3 space-y-2">
+                  <button
+                    onClick={() => {
+                      setAudit(null);
+                      setArtifacts([]);
+                    }}
+                    className="w-full rounded border border-zinc-300 px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  >
+                    Start new audit
+                  </button>
+                  <button
+                    onClick={handleAnalyze}
+                    className="w-full rounded border border-zinc-300 px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  >
+                    Re-run analysis
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
