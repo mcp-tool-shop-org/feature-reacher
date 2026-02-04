@@ -168,6 +168,7 @@ MIT
 git checkout phase-1-foundation    # Phase 1: Core diagnostic engine
 git checkout phase-2-repeatability # Phase 2: Persistence, compare, trends
 git checkout phase-3-marketplace   # Phase 3: Marketplace-ready packaging
+git checkout phase-3.5-teams-tab   # Phase 3.5: Teams tab integration
 ```
 
 ## Running Tests

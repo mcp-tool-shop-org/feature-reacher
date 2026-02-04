@@ -1,7 +1,7 @@
 # Feature-Reacher Marketplace Submission Checklist
 
 **Last updated:** February 2026
-**Target:** Microsoft AppSource / Azure Marketplace (SaaS offer)
+**Target:** Microsoft AppSource / Azure Marketplace (SaaS + Teams offer)
 
 ---
 
@@ -16,10 +16,12 @@
 
 ### 2. Offer Configuration
 
-- [ ] Offer type: SaaS
+- [ ] Offer type: SaaS + Teams app
 - [ ] Offer alias: `feature-reacher`
 - [ ] Primary category: Productivity > Content & Files
 - [ ] Secondary category: IT & Management > Analytics
+- [ ] Teams app ID: Generate new GUID
+- [ ] Azure AD app registration (for Teams SSO if needed)
 
 ---
 
@@ -84,6 +86,9 @@
 | `/demo` | Demo with auto-loaded data | [x] Live |
 | `/methodology` | Scoring explanation | [x] Live |
 | `/settings` | Data handling controls | [x] Live |
+| `/teams/tab` | Teams tab (full app) | [x] Live |
+| `/teams/tab?view=demo` | Teams tab (demo) | [x] Live |
+| `/teams/config` | Teams tab configuration | [x] Live |
 
 ### Functionality Checklist
 
@@ -93,6 +98,9 @@
 - [x] History/compare/trends functional
 - [x] Error boundaries catch failures
 - [x] Onboarding tour shows on first visit
+- [x] Teams tab loads in iframe
+- [x] Teams demo auto-runs audit
+- [x] Teams theme adaptation works
 
 ### Performance
 
@@ -121,6 +129,56 @@
 ```
 
 **No account required. No authentication flow.**
+
+---
+
+## Teams App Submission
+
+### Teams Package
+
+| Asset | Location | Status |
+|-------|----------|--------|
+| Manifest | `teams/manifest.json` | [x] Created |
+| Color icon (192×192) | `teams/color.png` | [ ] Create from SVG |
+| Outline icon (32×32) | `teams/outline.png` | [ ] Create from SVG |
+| Icon source | `teams/icon-source.svg` | [x] Created |
+
+### Teams Configuration
+
+- [ ] Replace `{{TEAMS_APP_ID}}` with generated GUID
+- [ ] Replace `{{AAD_APP_ID}}` with Azure AD app ID
+- [ ] Update `validDomains` with production domain
+- [ ] Update URLs in manifest to production
+
+### Teams Build
+
+```bash
+cd teams
+# Convert SVGs to PNGs (use tool of choice)
+# Create zip package
+zip -r feature-reacher-teams.zip manifest.json color.png outline.png
+```
+
+### Teams Submission
+
+1. Go to **Partner Center** > **Marketplace offers**
+2. Select your SaaS offer
+3. Go to **Teams app integration**
+4. Upload `feature-reacher-teams.zip`
+5. Complete Teams-specific listing details
+
+### Teams Reviewer Notes
+
+```
+1. Install app in Teams (sideload or admin upload)
+2. Add personal tab "Demo Audit"
+3. Verify demo loads automatically (~2 seconds)
+4. Expand a feature to see evidence
+5. Test Export functionality
+6. Switch Teams theme (dark/light) - verify app adapts
+7. Add configurable tab to a channel
+8. Verify configuration UI works
+```
 
 ---
 
@@ -182,6 +240,15 @@
 ├── 03-security-privacy.md  # Security brief
 ├── listing-copy.md         # Listing text
 └── submission-checklist.md # This file
+
+/docs/
+└── teams-tab-guide.md      # Teams tab user guide
+
+/teams/
+├── manifest.json           # Teams app manifest
+├── icon-source.svg         # Color icon source
+├── outline-source.svg      # Outline icon source
+└── README.md               # Teams package docs
 ```
 
 ### Key Contacts
@@ -192,4 +259,14 @@
 
 ---
 
-*Feature-Reacher — Ready for Marketplace*
+### Dual Listing Benefits
+
+Submitting both SaaS and Teams offers:
+- Increased discoverability (AppSource + Teams store)
+- Native Teams experience for enterprise users
+- Signals ecosystem alignment to Microsoft
+- Gives reviewers a familiar surface to test
+
+---
+
+*Feature-Reacher — Ready for Marketplace (SaaS + Teams)*
