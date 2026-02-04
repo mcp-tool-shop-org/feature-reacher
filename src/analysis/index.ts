@@ -43,3 +43,10 @@ export {
   scoreFeature,
   scoreAllFeatures,
 } from "./scoring";
+
+// Diagnosis engine
+export {
+  diagnoseFeature,
+  diagnoseAllFeatures,
+  getPrimaryDiagnosis,
+} from "./diagnose";
