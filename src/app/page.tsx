@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { Artifact, ArtifactType } from "@/domain";
 import {
@@ -22,12 +22,37 @@ import {
   ExportButtons,
   DemoLoader,
 } from "@/ui";
+import {
+  SaveAuditButton,
+  AutoSaveToggle,
+  UnsavedChangesIndicator,
+} from "@/ui/SaveAuditButton";
+import { useAutoSaveSetting, useSaveAudit } from "@/storage/hooks";
+import type { PersistedAudit, SavedArtifactRef } from "@/storage/types";
+import { generateContentHash } from "@/storage/types";
 
 export default function Home() {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [audit, setAudit] = useState<AdoptionRiskAudit | null>(null);
   const [expandedFeature, setExpandedFeature] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [savedAuditId, setSavedAuditId] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  const { autoSave } = useAutoSaveSetting();
+  const { saveAudit } = useSaveAudit();
+  const lastSavedHashRef = useRef<string>("");
+
+  // Track unsaved changes when artifacts change after a saved audit
+  useEffect(() => {
+    if (!savedAuditId || !audit) {
+      setHasUnsavedChanges(false);
+      return;
+    }
+
+    const currentHash = artifacts.map((a) => generateContentHash(a.rawContent)).join("-");
+    setHasUnsavedChanges(currentHash !== lastSavedHashRef.current);
+  }, [artifacts, savedAuditId, audit]);
 
   const handleUpload = useCallback(
     (content: string, name: string, type?: ArtifactType) => {
@@ -38,6 +63,7 @@ export default function Home() {
 
         setArtifacts((prev) => [...prev, result.artifact]);
         setAudit(null);
+        setSavedAuditId(null);
       } catch (error) {
         console.error("Failed to ingest artifact:", error);
       }
@@ -60,6 +86,7 @@ export default function Home() {
       }
       setArtifacts(ingested);
       setAudit(null);
+      setSavedAuditId(null);
     },
     []
   );
@@ -67,14 +94,51 @@ export default function Home() {
   const handleRemove = useCallback((id: string) => {
     setArtifacts((prev) => prev.filter((a) => a.id !== id));
     setAudit(null);
+    setSavedAuditId(null);
   }, []);
+
+  const performAutoSave = useCallback(
+    async (newAudit: AdoptionRiskAudit, currentArtifacts: Artifact[]) => {
+      const artifactRefs: SavedArtifactRef[] = currentArtifacts.map((a) => ({
+        id: a.id,
+        name: a.name,
+        type: a.type,
+        charCount: a.rawContent.length,
+        hash: generateContentHash(a.rawContent),
+      }));
+
+      const persistedAudit: PersistedAudit = {
+        id: "",
+        auditId: newAudit.summary.auditId,
+        name: `Audit ${new Date().toLocaleDateString()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        artifactRefs,
+        features: newAudit.rankedFeatures.map((rf) => rf.feature),
+        rankedFeatures: newAudit.rankedFeatures,
+        summary: newAudit.summary,
+        tags: [],
+        notes: "",
+      };
+
+      const id = await saveAudit(persistedAudit);
+      if (id) {
+        setSavedAuditId(id);
+        lastSavedHashRef.current = currentArtifacts
+          .map((a) => generateContentHash(a.rawContent))
+          .join("-");
+        setHasUnsavedChanges(false);
+      }
+    },
+    [saveAudit]
+  );
 
   const handleAnalyze = useCallback(() => {
     if (artifacts.length === 0) return;
 
     setIsAnalyzing(true);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         const extractionResults = artifacts.map((a) =>
           extractFeaturesFromArtifact(a)
@@ -102,12 +166,25 @@ export default function Home() {
         );
 
         setAudit(newAudit);
+
+        // Auto-save if enabled
+        if (autoSave) {
+          await performAutoSave(newAudit, artifacts);
+        }
       } catch (error) {
         console.error("Analysis failed:", error);
       } finally {
         setIsAnalyzing(false);
       }
     }, 100);
+  }, [artifacts, autoSave, performAutoSave]);
+
+  const handleSaved = useCallback((id: string) => {
+    setSavedAuditId(id);
+    lastSavedHashRef.current = artifacts
+      .map((a) => generateContentHash(a.rawContent))
+      .join("-");
+    setHasUnsavedChanges(false);
   }, [artifacts]);
 
   return (
@@ -126,9 +203,12 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-4">
               {audit && (
-                <div className="font-mono text-sm text-zinc-500">
-                  {audit.summary.auditId}
-                </div>
+                <>
+                  <div className="font-mono text-sm text-zinc-500">
+                    {audit.summary.auditId}
+                  </div>
+                  <UnsavedChangesIndicator hasUnsavedChanges={hasUnsavedChanges} />
+                </>
               )}
               <Link
                 href="/history"
@@ -169,11 +249,17 @@ export default function Home() {
                   headline={generateHeadline(audit)}
                 />
 
-                {/* Export options */}
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                    Export Report
-                  </h2>
+                {/* Save and export options */}
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center gap-4">
+                    <SaveAuditButton
+                      audit={audit}
+                      artifacts={artifacts}
+                      existingAuditId={savedAuditId || undefined}
+                      onSaved={handleSaved}
+                    />
+                    <AutoSaveToggle />
+                  </div>
                   <ExportButtons audit={audit} />
                 </div>
 
@@ -346,6 +432,7 @@ export default function Home() {
                     onClick={() => {
                       setAudit(null);
                       setArtifacts([]);
+                      setSavedAuditId(null);
                     }}
                     className="w-full rounded border border-zinc-300 px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
                   >
@@ -368,8 +455,7 @@ export default function Home() {
       <footer className="border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto max-w-5xl px-4 py-4">
           <p className="text-center text-xs text-zinc-500">
-            Feature-Reacher Phase 1 &mdash; Explainable intelligence for feature
-            adoption
+            Feature-Reacher Phase 2 &mdash; Repeatability &amp; Retention
           </p>
         </div>
       </footer>
