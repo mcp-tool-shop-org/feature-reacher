@@ -73,3 +73,6 @@ export {
   formatActionAsText,
   formatActionsAsText,
 } from "./actions";
+
+// Export
+export { generateTextSummary, generateHtmlReport } from "./export";

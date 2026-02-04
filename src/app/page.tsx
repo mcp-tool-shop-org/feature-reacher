@@ -18,6 +18,7 @@ import {
   ArtifactList,
   AuditSummary,
   FeatureCard,
+  ExportButtons,
 } from "@/ui";
 
 export default function Home() {
@@ -118,6 +119,14 @@ export default function Home() {
                   summary={audit.summary}
                   headline={generateHeadline(audit)}
                 />
+
+                {/* Export options */}
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                    Export Report
+                  </h2>
+                  <ExportButtons audit={audit} />
+                </div>
 
                 <div>
                   <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
