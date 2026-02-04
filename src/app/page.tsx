@@ -28,6 +28,7 @@ import {
   UnsavedChangesIndicator,
 } from "@/ui/SaveAuditButton";
 import { ArtifactSetManager } from "@/ui/ArtifactSetManager";
+import { OnboardingTour } from "@/ui/OnboardingTour";
 import { useAutoSaveSetting, useSaveAudit } from "@/storage/hooks";
 import type { PersistedAudit, SavedArtifactRef } from "@/storage/types";
 import { generateContentHash } from "@/storage/types";
@@ -261,10 +262,12 @@ export default function Home() {
                     />
                     <AutoSaveToggle />
                   </div>
-                  <ExportButtons audit={audit} />
+                  <div data-tour="export-buttons">
+                    <ExportButtons audit={audit} />
+                  </div>
                 </div>
 
-                <div>
+                <div data-tour="feature-cards">
                   <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                     At-Risk Features ({audit.rankedFeatures.filter((rf) => rf.riskLevel !== "low").length})
                   </h2>
@@ -389,7 +392,9 @@ export default function Home() {
                 </div>
 
                 {/* Demo loader */}
-                <DemoLoader onLoad={handleDemoLoad} />
+                <div data-tour="demo-loader">
+                  <DemoLoader onLoad={handleDemoLoad} />
+                </div>
               </div>
             )}
 
@@ -408,6 +413,7 @@ export default function Home() {
                   </div>
                   <button
                     onClick={handleAnalyze}
+                    data-tour="run-audit"
                     className="flex-shrink-0 rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700"
                   >
                     Run Audit
@@ -457,10 +463,13 @@ export default function Home() {
       <footer className="border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto max-w-5xl px-4 py-4">
           <p className="text-center text-xs text-zinc-500">
-            Feature-Reacher Phase 2 &mdash; Repeatability &amp; Retention
+            Feature-Reacher Phase 3 &mdash; Marketplace Ready
           </p>
         </div>
       </footer>
+
+      {/* Onboarding Tour */}
+      <OnboardingTour />
     </div>
   );
 }
