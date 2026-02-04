@@ -27,6 +27,7 @@ import {
   AutoSaveToggle,
   UnsavedChangesIndicator,
 } from "@/ui/SaveAuditButton";
+import { ArtifactSetManager } from "@/ui/ArtifactSetManager";
 import { useAutoSaveSetting, useSaveAudit } from "@/storage/hooks";
 import type { PersistedAudit, SavedArtifactRef } from "@/storage/types";
 import { generateContentHash } from "@/storage/types";
@@ -420,6 +421,7 @@ export default function Home() {
           <div className="space-y-6">
             <ArtifactUpload onUpload={handleUpload} />
             <ArtifactList artifacts={artifacts} onRemove={handleRemove} />
+            <ArtifactSetManager artifacts={artifacts} onLoadSet={handleDemoLoad} />
 
             {/* Quick actions when audit exists */}
             {audit && (
