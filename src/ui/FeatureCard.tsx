@@ -7,7 +7,9 @@
  */
 
 import type { RankedFeature } from "@/analysis";
+import { getActionsForDiagnosis } from "@/analysis";
 import { RiskBadge } from "./RiskBadge";
+import { ActionList } from "./ActionList";
 
 interface FeatureCardProps {
   rankedFeature: RankedFeature;
@@ -132,6 +134,24 @@ export function FeatureCard({
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recommended actions */}
+          {primaryDiagnosis && (
+            <div>
+              <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                Recommended Actions
+              </h4>
+              <div className="mt-2">
+                <ActionList
+                  actions={getActionsForDiagnosis(
+                    primaryDiagnosis.type,
+                    primaryDiagnosis.severity
+                  ).slice(0, 2)}
+                  featureName={feature.name}
+                />
               </div>
             </div>
           )}

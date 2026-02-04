@@ -64,3 +64,12 @@ export {
   filterByRiskLevel,
   generateHeadline,
 } from "./ranking";
+
+// Action recommendations
+export type { RecommendedAction } from "./actions";
+export {
+  getActionsForDiagnosis,
+  getTopActions,
+  formatActionAsText,
+  formatActionsAsText,
+} from "./actions";
