@@ -80,3 +80,7 @@ export { generateTextSummary, generateHtmlReport } from "./export";
 // Diff engine
 export type { FeatureChangeType, FeatureDiff, AuditDiff } from "./diff";
 export { compareAudits, getNewRisks, getResolvedRisks } from "./diff";
+
+// Trend analysis
+export type { TrendPoint, FeatureTrend, TrendSummary } from "./trend";
+export { generateTrendData, getFeatureTrend, generateSparklineText } from "./trend";

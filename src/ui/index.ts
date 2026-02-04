@@ -17,3 +17,4 @@ export { AuditHistory } from "./AuditHistory";
 export { SaveAuditButton, AutoSaveToggle, UnsavedChangesIndicator } from "./SaveAuditButton";
 export { ArtifactSetManager } from "./ArtifactSetManager";
 export { AuditCompare } from "./AuditCompare";
+export { FeatureTrendView } from "./FeatureTrend";
