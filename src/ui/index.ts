@@ -16,3 +16,4 @@ export { DemoLoader } from "./DemoLoader";
 export { AuditHistory } from "./AuditHistory";
 export { SaveAuditButton, AutoSaveToggle, UnsavedChangesIndicator } from "./SaveAuditButton";
 export { ArtifactSetManager } from "./ArtifactSetManager";
+export { AuditCompare } from "./AuditCompare";
