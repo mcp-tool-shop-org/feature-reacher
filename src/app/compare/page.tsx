@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AuditHistory } from "@/ui/AuditHistory";
 import { AuditCompare } from "@/ui/AuditCompare";
+import { CompareExportButtons } from "@/ui/CompareExportButtons";
 import { useAudit, useSavedAudits } from "@/storage/hooks";
 import { compareAudits, type AuditDiff } from "@/analysis/diff";
 import type { PersistedAuditId } from "@/storage/types";
@@ -186,12 +187,15 @@ export default function ComparePage() {
                 </div>
               </div>
 
-              <button
-                onClick={() => setCompareId(null)}
-                className="ml-auto rounded border border-zinc-300 px-3 py-1 text-sm text-zinc-600 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
-              >
-                Change selection
-              </button>
+              <div className="ml-auto flex items-center gap-2">
+                <CompareExportButtons diff={diff} />
+                <button
+                  onClick={() => setCompareId(null)}
+                  className="rounded border border-zinc-300 px-3 py-1 text-sm text-zinc-600 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                >
+                  Change selection
+                </button>
+              </div>
             </div>
 
             {/* Diff view */}

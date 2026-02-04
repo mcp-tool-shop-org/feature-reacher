@@ -8,7 +8,7 @@
 
 import { useState } from "react";
 import type { AdoptionRiskAudit } from "@/analysis";
-import { generateTextSummary, generateHtmlReport } from "@/analysis";
+import { generateTextSummary, generateHtmlReport, generateExecutiveNarrative } from "@/analysis";
 
 interface ExportButtonsProps {
   audit: AdoptionRiskAudit;
@@ -16,6 +16,18 @@ interface ExportButtonsProps {
 
 export function ExportButtons({ audit }: ExportButtonsProps) {
   const [copied, setCopied] = useState(false);
+  const [narrativeCopied, setNarrativeCopied] = useState(false);
+
+  const handleCopyNarrative = async () => {
+    const narrative = generateExecutiveNarrative(audit);
+    try {
+      await navigator.clipboard.writeText(narrative);
+      setNarrativeCopied(true);
+      setTimeout(() => setNarrativeCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
 
   const handleCopyText = async () => {
     const text = generateTextSummary(audit);
@@ -54,6 +66,48 @@ export function ExportButtons({ audit }: ExportButtonsProps) {
 
   return (
     <div className="flex flex-wrap gap-2">
+      <button
+        onClick={handleCopyNarrative}
+        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+        title="Copy executive summary (3-5 sentences)"
+      >
+        {narrativeCopied ? (
+          <>
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Copied!
+          </>
+        ) : (
+          <>
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+            Copy Summary
+          </>
+        )}
+      </button>
+
       <button
         onClick={handleCopyText}
         className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"

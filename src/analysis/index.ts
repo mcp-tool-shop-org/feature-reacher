@@ -75,7 +75,13 @@ export {
 } from "./actions";
 
 // Export
-export { generateTextSummary, generateHtmlReport } from "./export";
+export {
+  generateTextSummary,
+  generateHtmlReport,
+  generateCompareTextReport,
+  generateExecutiveNarrative,
+  generateCompareExecutiveNarrative,
+} from "./export";
 
 // Diff engine
 export type { FeatureChangeType, FeatureDiff, AuditDiff } from "./diff";

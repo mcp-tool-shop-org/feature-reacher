@@ -314,3 +314,252 @@ function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength - 3) + "...";
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Compare Export
+// ─────────────────────────────────────────────────────────────────────────────
+
+import type { AuditDiff } from "./diff";
+
+/**
+ * Generate a text report comparing two audits.
+ */
+export function generateCompareTextReport(diff: AuditDiff): string {
+  const lines: string[] = [];
+
+  // Header
+  lines.push("═".repeat(60));
+  lines.push("AUDIT COMPARISON REPORT");
+  lines.push("═".repeat(60));
+  lines.push("");
+
+  // Audit info
+  lines.push(`Base Audit: ${diff.baseAuditName}`);
+  lines.push(`  ID: ${diff.baseAuditId}`);
+  lines.push(`  Date: ${new Date(diff.baseCreatedAt).toLocaleDateString()}`);
+  lines.push("");
+  lines.push(`Compare Audit: ${diff.compareAuditName}`);
+  lines.push(`  ID: ${diff.compareAuditId}`);
+  lines.push(`  Date: ${new Date(diff.compareCreatedAt).toLocaleDateString()}`);
+  lines.push("");
+
+  // Headline
+  lines.push("─".repeat(60));
+  lines.push(diff.headline.toUpperCase());
+  lines.push("─".repeat(60));
+  lines.push("");
+
+  // Summary
+  lines.push("CHANGE SUMMARY");
+  lines.push("─".repeat(40));
+  lines.push(`New Risks: ${diff.summary.newRisks}`);
+  lines.push(`Resolved Risks: ${diff.summary.resolvedRisks}`);
+  lines.push(`Risk Increases: ${diff.summary.riskIncreases}`);
+  lines.push(`Risk Decreases: ${diff.summary.riskDecreases}`);
+  lines.push(`Diagnosis Changes: ${diff.summary.diagnosisChanges}`);
+  lines.push(`Features Added: ${diff.summary.addedFeatures}`);
+  lines.push(`Features Removed: ${diff.summary.removedFeatures}`);
+  lines.push(`Unchanged: ${diff.summary.unchangedFeatures}`);
+  lines.push("");
+
+  // Biggest movers
+  if (diff.biggestMovers.length > 0) {
+    lines.push("BIGGEST MOVERS");
+    lines.push("─".repeat(40));
+    for (const change of diff.biggestMovers) {
+      lines.push(`• ${change.changeSummary}`);
+    }
+    lines.push("");
+  }
+
+  // Changes by type
+  const addedChanges = diff.allChanges.filter((c) => c.changeType === "added");
+  const removedChanges = diff.allChanges.filter((c) => c.changeType === "removed");
+  const increasedChanges = diff.allChanges.filter((c) => c.changeType === "risk_increased");
+  const decreasedChanges = diff.allChanges.filter((c) => c.changeType === "risk_decreased");
+  const diagnosisChanges = diff.allChanges.filter((c) => c.changeType === "diagnosis_changed");
+
+  if (addedChanges.length > 0) {
+    lines.push("ADDED FEATURES");
+    lines.push("─".repeat(40));
+    for (const c of addedChanges) {
+      lines.push(`+ ${c.featureName} (${c.after?.riskLevel} risk)`);
+    }
+    lines.push("");
+  }
+
+  if (removedChanges.length > 0) {
+    lines.push("REMOVED FEATURES");
+    lines.push("─".repeat(40));
+    for (const c of removedChanges) {
+      lines.push(`- ${c.featureName} (was ${c.before?.riskLevel} risk)`);
+    }
+    lines.push("");
+  }
+
+  if (increasedChanges.length > 0) {
+    lines.push("RISK INCREASED");
+    lines.push("─".repeat(40));
+    for (const c of increasedChanges) {
+      lines.push(`↑ ${c.featureName}: ${c.before?.riskLevel} → ${c.after?.riskLevel}`);
+    }
+    lines.push("");
+  }
+
+  if (decreasedChanges.length > 0) {
+    lines.push("RISK DECREASED");
+    lines.push("─".repeat(40));
+    for (const c of decreasedChanges) {
+      lines.push(`↓ ${c.featureName}: ${c.before?.riskLevel} → ${c.after?.riskLevel}`);
+    }
+    lines.push("");
+  }
+
+  if (diagnosisChanges.length > 0) {
+    lines.push("DIAGNOSIS CHANGED");
+    lines.push("─".repeat(40));
+    for (const c of diagnosisChanges) {
+      lines.push(`~ ${c.featureName}: ${formatDiagnosisType(c.before?.diagnosis)} → ${formatDiagnosisType(c.after?.diagnosis)}`);
+    }
+    lines.push("");
+  }
+
+  // Footer
+  lines.push("─".repeat(60));
+  lines.push(`Generated: ${new Date().toLocaleString()}`);
+
+  return lines.join("\n");
+}
+
+function formatDiagnosisType(type: string | undefined): string {
+  if (!type) return "unknown";
+  return type.replace(/_/g, " ");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Executive Narrative
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Generate a 3–5 sentence executive summary (template-driven, not AI).
+ */
+export function generateExecutiveNarrative(audit: AdoptionRiskAudit): string {
+  const { summary, rankedFeatures } = audit;
+  const sentences: string[] = [];
+
+  // Sentence 1: Overview
+  const totalAtRisk = summary.byRiskLevel.critical + summary.byRiskLevel.high;
+  if (totalAtRisk === 0) {
+    sentences.push(
+      `This audit analyzed ${summary.totalFeatures} features across ${summary.artifactsAnalyzed} documentation artifact${summary.artifactsAnalyzed !== 1 ? "s" : ""} and found no significant adoption risks.`
+    );
+  } else {
+    sentences.push(
+      `This audit analyzed ${summary.totalFeatures} features and identified ${totalAtRisk} with elevated adoption risk.`
+    );
+  }
+
+  // Sentence 2: Critical findings
+  if (summary.byRiskLevel.critical > 0) {
+    const criticalFeatures = rankedFeatures
+      .filter((rf) => rf.riskLevel === "critical")
+      .slice(0, 2)
+      .map((rf) => rf.feature.name);
+    sentences.push(
+      `Critical attention needed: ${criticalFeatures.join(" and ")} ${criticalFeatures.length === 1 ? "shows" : "show"} signs of poor discoverability.`
+    );
+  } else if (summary.byRiskLevel.high > 0) {
+    const highFeatures = rankedFeatures
+      .filter((rf) => rf.riskLevel === "high")
+      .slice(0, 2)
+      .map((rf) => rf.feature.name);
+    sentences.push(
+      `Priority review recommended for: ${highFeatures.join(" and ")}.`
+    );
+  }
+
+  // Sentence 3: Top risk factor
+  if (summary.topRiskFactors.length > 0) {
+    sentences.push(
+      `The most common issue is "${summary.topRiskFactors[0]}".`
+    );
+  }
+
+  // Sentence 4: Action-oriented
+  if (totalAtRisk > 0) {
+    sentences.push(
+      `Addressing documentation gaps for the top ${Math.min(3, totalAtRisk)} features could improve feature adoption within 30 days.`
+    );
+  } else {
+    sentences.push(
+      `Continue monitoring these features in future audits to maintain healthy adoption.`
+    );
+  }
+
+  // Sentence 5: Confidence note
+  sentences.push(
+    `Note: This analysis is based on documentation patterns only—combine with usage analytics for full visibility.`
+  );
+
+  return sentences.join(" ");
+}
+
+/**
+ * Generate an executive narrative for a comparison.
+ */
+export function generateCompareExecutiveNarrative(diff: AuditDiff): string {
+  const sentences: string[] = [];
+
+  // Sentence 1: Time span
+  const daysDiff = Math.round(
+    (new Date(diff.compareCreatedAt).getTime() - new Date(diff.baseCreatedAt).getTime()) /
+      (1000 * 60 * 60 * 24)
+  );
+  sentences.push(
+    `Between "${diff.baseAuditName}" and "${diff.compareAuditName}" (${daysDiff} day${daysDiff !== 1 ? "s" : ""}), ${diff.allChanges.length - diff.summary.unchangedFeatures} changes were detected.`
+  );
+
+  // Sentence 2: Direction
+  if (diff.summary.newRisks > diff.summary.resolvedRisks) {
+    sentences.push(
+      `Risk profile has worsened: ${diff.summary.newRisks} new risks emerged while only ${diff.summary.resolvedRisks} were resolved.`
+    );
+  } else if (diff.summary.resolvedRisks > diff.summary.newRisks) {
+    sentences.push(
+      `Risk profile has improved: ${diff.summary.resolvedRisks} risks were resolved, outpacing the ${diff.summary.newRisks} new risks.`
+    );
+  } else if (diff.summary.newRisks === 0 && diff.summary.resolvedRisks === 0) {
+    sentences.push(
+      `Risk profile remains stable with no new critical risks introduced.`
+    );
+  } else {
+    sentences.push(
+      `Risk profile is neutral: ${diff.summary.newRisks} new risks balanced by ${diff.summary.resolvedRisks} resolved.`
+    );
+  }
+
+  // Sentence 3: Biggest mover
+  if (diff.biggestMovers.length > 0) {
+    const top = diff.biggestMovers[0];
+    sentences.push(
+      `Most significant change: ${top.changeSummary}.`
+    );
+  }
+
+  // Sentence 4: Recommendation
+  if (diff.summary.riskIncreases > 0) {
+    sentences.push(
+      `Recommend reviewing the ${diff.summary.riskIncreases} features with increased risk before the next release.`
+    );
+  } else if (diff.summary.addedFeatures > 0) {
+    sentences.push(
+      `Ensure the ${diff.summary.addedFeatures} newly detected feature${diff.summary.addedFeatures !== 1 ? "s have" : " has"} adequate documentation.`
+    );
+  } else {
+    sentences.push(
+      `No urgent action required—continue monitoring in future audits.`
+    );
+  }
+
+  return sentences.join(" ");
+}
