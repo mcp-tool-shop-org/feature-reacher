@@ -27,3 +27,19 @@ export {
   extractFeaturesFromArtifact,
   mergeExtractionResults,
 } from "./extractor";
+
+// Scoring heuristics
+export type {
+  ScoreBreakdown,
+  ScoreFactor,
+  FeatureScore,
+  ScoringConfig,
+} from "./scoring";
+export {
+  calculateRecencyScore,
+  calculateVisibilityScore,
+  calculateDensityScore,
+  calculateAdoptionRisk,
+  scoreFeature,
+  scoreAllFeatures,
+} from "./scoring";
