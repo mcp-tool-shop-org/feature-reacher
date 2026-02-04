@@ -25,21 +25,25 @@ This is **explainable intelligence**—every diagnosis comes with cited evidence
 
 ---
 
-## Phase 1 Scope
+## What Phase 1 Delivers
 
-Phase 1 delivers:
-- Manual artifact upload (paste or file)
-- Feature extraction from text
-- Recency and visibility scoring
-- Adoption risk diagnoses with evidence
-- Ranked audit report
-- Exportable summary
+- **Artifact Upload**: Paste text or upload .txt/.md files
+- **Feature Extraction**: Headings, bullet lists, repeated phrases
+- **Scoring Heuristics**: Recency decay, visibility signals, documentation density
+- **Diagnosis Engine**: 6 diagnosis types with triggering signals and evidence
+- **Ranked Audit**: Features ordered by adoption risk
+- **Action Recommendations**: Copyable actions per diagnosis
+- **Export**: Plain text and printable HTML reports
 
-Phase 1 intentionally does NOT:
+## What Phase 1 Intentionally Does NOT Do
+
 - Connect to analytics platforms
 - Integrate with GitHub, Jira, or other tools
 - Use ML models for feature detection
 - Provide real-time monitoring
+- Require authentication or accounts
+
+This is by design. Phase 1 proves the diagnostic model works before adding complexity.
 
 ---
 
@@ -51,6 +55,14 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Quick Test
+
+1. Paste some release notes or documentation
+2. Click "Run Audit"
+3. Review the ranked feature list
+4. Expand features to see evidence and recommendations
+5. Export the report
 
 ---
 
@@ -64,8 +76,54 @@ Open [http://localhost:3000](http://localhost:3000).
 /docs          # Project documentation
 ```
 
+### Key Files
+
+- `src/domain/feature.ts` - Canonical Feature model
+- `src/domain/diagnosis.ts` - Diagnosis types and severity
+- `src/analysis/extractor.ts` - Feature extraction heuristics
+- `src/analysis/scoring.ts` - Recency/visibility scoring
+- `src/analysis/diagnose.ts` - Diagnosis engine
+- `src/analysis/ranking.ts` - Risk ranking and audit generation
+- `src/analysis/actions.ts` - Action recommendations
+- `src/analysis/export.ts` - Report generation
+
+---
+
+## Architecture
+
+```
+Artifact Upload → Text Normalization → Feature Extraction
+                                              ↓
+                                       Evidence Linking
+                                              ↓
+                                    Heuristic Scoring
+                                              ↓
+                                    Diagnosis Generation
+                                              ↓
+                                      Risk Ranking
+                                              ↓
+                                    Audit Report + Actions
+```
+
+### Design Principles
+
+1. **No magic**: Every diagnosis is explainable with cited evidence
+2. **Heuristics first**: No ML until heuristics prove insufficient
+3. **Deterministic**: Same input always produces same output
+4. **Transparent**: Users can trace any conclusion back to source
+
 ---
 
 ## License
 
 MIT
+
+---
+
+## Phase 1 Tag
+
+This release is tagged as `phase-1-foundation`.
+
+```bash
+git checkout phase-1-foundation
+```
