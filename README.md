@@ -45,6 +45,18 @@ This is **explainable intelligence**—every diagnosis comes with cited evidence
 - **Executive Narrative**: Template-driven summary for partner sharing (no AI)
 - **Test Suite**: Jest + ts-jest with guardrail tests
 
+## What Phase 3 Adds (Marketplace-Ready)
+
+- **Public Landing Page**: `/landing` with value props and CTAs
+- **Demo Mode**: `/demo` auto-loads sample data for instant experience
+- **Legal Pages**: Privacy policy, terms of service, support contact
+- **Data Handling Panel**: Transparency about local storage with purge option
+- **Onboarding Tour**: 4-step guided tour for new users
+- **Methodology Page**: `/methodology` explains scoring (no AI hype)
+- **Error Boundaries**: Crash-safe UX with diagnostic export
+- **A11y Utilities**: Keyboard navigation, ARIA helpers, screen reader support
+- **Marketplace Assets**: Listing copy, PDF docs, submission checklist
+
 ## What This Tool Intentionally Does NOT Do
 
 - Connect to analytics platforms
@@ -54,7 +66,7 @@ This is **explainable intelligence**—every diagnosis comes with cited evidence
 - Require authentication or accounts
 - Use AI for narrative generation (deterministic templates only)
 
-This is by design. Phase 2 proves the repeatability model works before adding integrations.
+This is by design. Phase 3 proves marketplace readiness before adding integrations.
 
 ---
 
@@ -153,8 +165,9 @@ MIT
 ## Release Tags
 
 ```bash
-git checkout phase-1-foundation   # Phase 1: Core diagnostic engine
+git checkout phase-1-foundation    # Phase 1: Core diagnostic engine
 git checkout phase-2-repeatability # Phase 2: Persistence, compare, trends
+git checkout phase-3-marketplace   # Phase 3: Marketplace-ready packaging
 ```
 
 ## Running Tests
