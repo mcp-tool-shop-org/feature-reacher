@@ -14,3 +14,9 @@ export {
   prefetchRoute,
   isLowPowerDevice,
 } from "./performance";
+export {
+  useTeamsContext,
+  isInTeamsEnvironment,
+  getTeamsTheme,
+  applyTeamsTheme,
+} from "./teams";
