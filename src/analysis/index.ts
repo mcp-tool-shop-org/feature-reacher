@@ -50,3 +50,17 @@ export {
   diagnoseAllFeatures,
   getPrimaryDiagnosis,
 } from "./diagnose";
+
+// Ranking & prioritization
+export type {
+  RankedFeature,
+  AuditSummary,
+  AdoptionRiskAudit,
+} from "./ranking";
+export {
+  rankFeatures,
+  generateAudit,
+  getTopAtRiskFeatures,
+  filterByRiskLevel,
+  generateHeadline,
+} from "./ranking";
