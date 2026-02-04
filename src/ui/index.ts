@@ -21,3 +21,4 @@ export { FeatureTrendView } from "./FeatureTrend";
 export { CompareExportButtons } from "./CompareExportButtons";
 export { DataHandlingPanel } from "./DataHandlingPanel";
 export { OnboardingTour, useOnboardingTour, RestartTourButton } from "./OnboardingTour";
+export { ErrorBoundary, ErrorFallback, PageErrorBoundary, SectionErrorBoundary } from "./ErrorBoundary";
