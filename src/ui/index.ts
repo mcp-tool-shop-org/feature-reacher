@@ -19,3 +19,4 @@ export { ArtifactSetManager } from "./ArtifactSetManager";
 export { AuditCompare } from "./AuditCompare";
 export { FeatureTrendView } from "./FeatureTrend";
 export { CompareExportButtons } from "./CompareExportButtons";
+export { DataHandlingPanel } from "./DataHandlingPanel";
