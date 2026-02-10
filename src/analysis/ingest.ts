@@ -18,6 +18,78 @@ import {
 } from "./normalizer";
 
 /**
+ * Content quality signals that indicate code, HTML, or minified content
+ * rather than human-readable product documentation.
+ */
+interface ContentAnalysis {
+  isCodeLike: boolean;
+  isHtmlHeavy: boolean;
+  isMinified: boolean;
+  codeSignalRatio: number;
+  reasons: string[];
+}
+
+/**
+ * Analyzes content to detect code, HTML, or minified artifacts
+ * that would produce garbage analysis results.
+ */
+function analyzeContentQuality(content: string): ContentAnalysis {
+  const reasons: string[] = [];
+  const totalChars = content.length;
+
+  if (totalChars === 0) {
+    return { isCodeLike: false, isHtmlHeavy: false, isMinified: false, codeSignalRatio: 0, reasons };
+  }
+
+  // Count code-like characters: < > { } ( ) ; = / \
+  const codeChars = (content.match(/[<>{}();=\\/]/g) || []).length;
+  const codeSignalRatio = codeChars / totalChars;
+
+  // Detect HTML tags
+  const htmlTagCount = (content.match(/<\/?[a-z][a-z0-9]*[\s>]/gi) || []).length;
+  const isHtmlHeavy = htmlTagCount > 20 || (htmlTagCount > 5 && codeSignalRatio > 0.05);
+
+  // Detect minified content (very long lines)
+  const lines = content.split("\n");
+  const longLines = lines.filter((line) => line.length > 500).length;
+  const isMinified = longLines >= 3 || (lines.length > 0 && lines.some((l) => l.length > 2000));
+
+  // Detect code patterns
+  const codePatterns = [
+    /<script[\s>]/i,
+    /<style[\s>]/i,
+    /function\s*\(/,
+    /\bconst\s+\w/,
+    /\bvar\s+\w/,
+    /\blet\s+\w/,
+    /=>\s*[{(]/,
+    /import\s+.*\s+from\s+['"`]/,
+    /require\s*\(\s*['"`]/,
+    /\bclass\s+\w+\s*\{/,
+    /\/\*\*?\s/,
+    /module\.exports/,
+  ];
+  const codePatternHits = codePatterns.filter((p) => p.test(content)).length;
+  const isCodeLike = codePatternHits >= 3 || codeSignalRatio > 0.08;
+
+  // Build reasons
+  if (isHtmlHeavy) {
+    reasons.push(`Contains ${htmlTagCount} HTML tags — this looks like a web page or HTML export`);
+  }
+  if (isMinified) {
+    reasons.push("Contains very long lines typical of minified/bundled code");
+  }
+  if (isCodeLike && !isHtmlHeavy) {
+    reasons.push(`High density of code syntax characters (${(codeSignalRatio * 100).toFixed(1)}%)`);
+  }
+  if (codePatternHits >= 3) {
+    reasons.push(`Detected ${codePatternHits} code-like patterns (function, const, import, etc.)`);
+  }
+
+  return { isCodeLike, isHtmlHeavy, isMinified, codeSignalRatio, reasons };
+}
+
+/**
  * Generates a unique artifact ID.
  */
 function generateArtifactId(): ArtifactId {
@@ -71,6 +143,16 @@ export function ingestPastedText(input: PastedTextInput): IngestResult {
     );
   }
 
+  // Check for code/HTML content
+  const quality = analyzeContentQuality(rawContent);
+  if (quality.isHtmlHeavy || quality.isCodeLike || quality.isMinified) {
+    warnings.push(
+      "⚠️ This content looks like code or HTML rather than product documentation. " +
+      "Feature-Reacher works best with release notes, help articles, FAQs, and product docs. " +
+      quality.reasons.join(". ") + "."
+    );
+  }
+
   // Normalize content
   const normalizedContent = normalizeText(rawContent);
 
@@ -84,7 +166,7 @@ export function ingestPastedText(input: PastedTextInput): IngestResult {
   const type =
     input.type ?? inferArtifactType(input.name ?? "untitled", normalizedContent);
 
-  // Create artifact
+  // Create artifact (tag it if code-like so the extractor can be cautious)
   const artifact = createArtifact(
     generateArtifactId(),
     input.name ?? "Pasted content",
@@ -94,6 +176,7 @@ export function ingestPastedText(input: PastedTextInput): IngestResult {
     {
       contentTimestamp,
       headings,
+      isCodeLike: quality.isCodeLike || quality.isHtmlHeavy || quality.isMinified,
     }
   );
 
@@ -129,6 +212,16 @@ export function ingestUploadedFile(input: FileUploadInput): IngestResult {
     );
   }
 
+  // Check for code/HTML content
+  const quality = analyzeContentQuality(rawContent);
+  if (quality.isHtmlHeavy || quality.isCodeLike || quality.isMinified) {
+    warnings.push(
+      "⚠️ This file looks like code or HTML rather than product documentation. " +
+      "Feature-Reacher works best with release notes, help articles, FAQs, and product docs. " +
+      quality.reasons.join(". ") + "."
+    );
+  }
+
   // Normalize content
   const normalizedContent = normalizeText(rawContent);
 
@@ -142,7 +235,7 @@ export function ingestUploadedFile(input: FileUploadInput): IngestResult {
   const type =
     input.type ?? inferArtifactType(input.filename, normalizedContent);
 
-  // Create artifact
+  // Create artifact (tag it if code-like so the extractor can be cautious)
   const artifact = createArtifact(
     generateArtifactId(),
     input.filename,
@@ -152,6 +245,7 @@ export function ingestUploadedFile(input: FileUploadInput): IngestResult {
     {
       contentTimestamp,
       headings,
+      isCodeLike: quality.isCodeLike || quality.isHtmlHeavy || quality.isMinified,
     }
   );
 

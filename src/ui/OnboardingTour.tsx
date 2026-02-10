@@ -16,7 +16,7 @@ const TOUR_STEPS: TourStep[] = [
     id: "welcome",
     title: "Welcome to Feature-Reacher",
     description:
-      "Surface underutilized features before they become technical debt. This quick tour shows you how to run your first Adoption Risk Audit.",
+      "Surface underutilized features before they become technical debt. This quick tour shows you how to run your first Adoption Risk Audit. This app runs entirely in your browser\u2014no data is sent to a server.",
     position: "center",
     action: "Get Started",
   },

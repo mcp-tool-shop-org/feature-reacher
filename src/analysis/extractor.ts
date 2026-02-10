@@ -107,12 +107,114 @@ function extractFromBullets(artifact: Artifact): FeatureMention[] {
 }
 
 /**
+ * Legal boilerplate and code-related phrases to skip during extraction.
+ */
+const BOILERPLATE_PHRASES = new Set([
+  "copyright",
+  "all rights reserved",
+  "license",
+  "licensed",
+  "permission",
+  "warranty",
+  "liability",
+  "redistribution",
+  "disclaimer",
+  "contributors",
+  "authors",
+  "maintainers",
+  "software",
+  "provided",
+  "express",
+  "implied",
+  "damages",
+  "holders",
+  "copyright holders",
+  "source code",
+  "binary form",
+  "modified",
+  "unmodified",
+  "third party",
+  "third parties",
+  "open source",
+  "apache",
+  "mit license",
+  "gnu",
+  "bsd",
+  "mozilla",
+  "creative commons",
+  "inc",
+  "llc",
+  "corp",
+  "ltd",
+  "plotly",
+  "google",
+  "microsoft",
+  "facebook",
+  "meta",
+  "amazon",
+  "github",
+  // Common code identifiers that aren't features
+  "null",
+  "undefined",
+  "true",
+  "false",
+  "string",
+  "number",
+  "boolean",
+  "object",
+  "array",
+  "function",
+  "class",
+  "interface",
+  "type",
+  "const",
+  "return",
+  "export",
+  "import",
+  "default",
+  "module",
+  "require",
+]);
+
+/**
+ * Checks if a phrase looks like legal boilerplate or code.
+ */
+function isBoilerplatePhrase(phrase: string): boolean {
+  const lower = phrase.toLowerCase();
+  return BOILERPLATE_PHRASES.has(lower);
+}
+
+/**
+ * Checks if a phrase has word-like context (surrounded by natural language,
+ * not embedded in code syntax).
+ */
+function hasWordLikeContext(content: string, matchIndex: number, phraseLength: number): boolean {
+  const before = content.slice(Math.max(0, matchIndex - 5), matchIndex);
+  const after = content.slice(matchIndex + phraseLength, matchIndex + phraseLength + 5);
+
+  // If surrounded by code-like characters, it's probably not a feature name
+  const codeSyntax = /[{}()<>;\[\]=+*&|^~`]/;
+  const beforeHasCode = codeSyntax.test(before);
+  const afterHasCode = codeSyntax.test(after);
+
+  return !(beforeHasCode && afterHasCode);
+}
+
+/**
  * Extracts feature mentions from repeated noun phrases.
  * If something is mentioned multiple times, it's likely important.
+ *
+ * For code-like artifacts, this extractor is disabled entirely since
+ * code/HTML contains thousands of capitalized identifiers that produce
+ * nonsensical feature lists.
  */
 function extractFromRepeatedPhrases(artifact: Artifact): FeatureMention[] {
+  // Gate: skip entirely for code-like content
+  if (artifact.isCodeLike) {
+    return [];
+  }
+
   const mentions: FeatureMention[] = [];
-  const content = artifact.normalizedContent.toLowerCase();
 
   // Find capitalized phrases (likely proper nouns / feature names)
   const capitalizedPattern = /\b([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)\b/g;
@@ -127,8 +229,14 @@ function extractFromRepeatedPhrases(artifact: Artifact): FeatureMention[] {
     // Skip common words
     if (isCommonWord(phrase)) continue;
 
+    // Skip legal boilerplate / code identifiers
+    if (isBoilerplatePhrase(phrase)) continue;
+
     // Skip very short or very long phrases
     if (phrase.length < 3 || phrase.split(/\s+/).length > 4) continue;
+
+    // Check context is word-like (not embedded in code)
+    if (!hasWordLikeContext(originalContent, match.index ?? 0, phrase.length)) continue;
 
     const key = phrase.toLowerCase();
     const existing = phraseCounts.get(key) ?? { count: 0, excerpts: [] };
@@ -145,9 +253,9 @@ function extractFromRepeatedPhrases(artifact: Artifact): FeatureMention[] {
     phraseCounts.set(key, existing);
   }
 
-  // Only consider phrases mentioned 2+ times
+  // Require 3+ mentions (raised from 2 to reduce noise)
   for (const [phrase, data] of phraseCounts) {
-    if (data.count >= 2) {
+    if (data.count >= 3) {
       mentions.push({
         name: normalizeFeatureName(phrase),
         excerpt: data.excerpts.join(" | "),

@@ -39,6 +39,10 @@ export default function TermsPage() {
               these Terms of Service. If you do not agree to these terms, please
               do not use the application.
             </p>
+            <p>
+              Feature-Reacher is operated by mcp-tool-shop, based in Louisiana,
+              United States.
+            </p>
           </section>
 
           <section>
@@ -172,7 +176,24 @@ export default function TermsPage() {
             <h2>Governing Law</h2>
             <p>
               These terms shall be governed by and construed in accordance with
-              applicable law, without regard to conflict of law principles.
+              the laws of the State of Florida, United States, without regard
+              to conflict of law principles.
+            </p>
+          </section>
+
+          <section>
+            <h2>Data Processing Summary</h2>
+            <ul>
+              <li>No server-side storage &mdash; all data stays in your browser</li>
+              <li>No analytics or tracking cookies</li>
+              <li>No third-party data sharing</li>
+            </ul>
+            <p>
+              For full details, see our{" "}
+              <Link href="/privacy" className="text-blue-600 hover:underline">
+                Privacy Policy
+              </Link>
+              .
             </p>
           </section>
 

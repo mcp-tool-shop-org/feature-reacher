@@ -49,6 +49,9 @@ export interface Artifact {
 
   /** Detected headings/sections in the artifact */
   headings: string[];
+
+  /** Whether the content was flagged as code/HTML/minified (used to gate extraction) */
+  isCodeLike?: boolean;
 }
 
 /**
@@ -63,6 +66,7 @@ export function createArtifact(
   options?: {
     contentTimestamp?: string;
     headings?: string[];
+    isCodeLike?: boolean;
   }
 ): Artifact {
   return {
@@ -75,6 +79,7 @@ export function createArtifact(
     uploadedAt: new Date().toISOString(),
     wordCount: normalizedContent.split(/\s+/).filter(Boolean).length,
     headings: options?.headings ?? [],
+    isCodeLike: options?.isCodeLike,
   };
 }
 

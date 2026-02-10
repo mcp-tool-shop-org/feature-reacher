@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https:",
               "frame-ancestors https://teams.microsoft.com https://*.teams.microsoft.com https://*.office.com https://*.sharepoint.com",
-              "connect-src 'self' https://feature-reacher.example",
+              "connect-src 'self' https://gentle-bay-0363a0d10.4.azurestaticapps.net",
             ].join("; "),
           },
           {
