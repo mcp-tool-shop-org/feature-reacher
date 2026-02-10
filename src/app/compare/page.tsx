@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AuditHistory } from "@/ui/AuditHistory";
@@ -10,7 +10,7 @@ import { useAudit, useSavedAudits } from "@/storage/hooks";
 import { compareAudits, type AuditDiff } from "@/analysis/diff";
 import type { PersistedAuditId } from "@/storage/types";
 
-export default function ComparePage() {
+function ComparePageContent() {
   const searchParams = useSearchParams();
   const baseId = searchParams.get("base");
 
@@ -213,5 +213,17 @@ export default function ComparePage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function ComparePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-blue-600" />
+      </div>
+    }>
+      <ComparePageContent />
+    </Suspense>
   );
 }

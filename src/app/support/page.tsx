@@ -52,10 +52,10 @@ export default function SupportPage() {
                     Email
                   </div>
                   <a
-                    href="mailto:support@feature-reacher.example"
+                    href="mailto:support@gentle-bay-0363a0d10.4.azurestaticapps.net"
                     className="text-sm text-blue-600 hover:underline"
                   >
-                    support@feature-reacher.example
+                    support@gentle-bay-0363a0d10.4.azurestaticapps.net
                   </a>
                 </div>
               </div>

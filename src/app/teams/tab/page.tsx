@@ -201,7 +201,7 @@ function TeamsTabContent() {
                   <p className="text-xs text-zinc-500 text-center py-2">
                     +{audit.rankedFeatures.filter((rf) => rf.riskLevel !== "low").length - 5} more features.{" "}
                     <a
-                      href={isInTeams ? "https://feature-reacher.example" : "/"}
+                      href={isInTeams ? "https://gentle-bay-0363a0d10.4.azurestaticapps.net" : "/"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
@@ -235,7 +235,7 @@ function TeamsTabContent() {
                 Try Demo
               </Link>
               <a
-                href="https://feature-reacher.example"
+                href="https://gentle-bay-0363a0d10.4.azurestaticapps.net"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded border border-zinc-300 dark:border-zinc-600 px-4 py-2 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800"
@@ -249,11 +249,11 @@ function TeamsTabContent() {
 
       {/* Minimal footer */}
       <footer className="border-t border-zinc-200 dark:border-zinc-700 px-4 py-2 text-center text-xs text-zinc-500">
-        <a href="https://feature-reacher.example/methodology" target="_blank" rel="noopener noreferrer" className="hover:underline">
+        <a href="https://gentle-bay-0363a0d10.4.azurestaticapps.net/methodology" target="_blank" rel="noopener noreferrer" className="hover:underline">
           Methodology
         </a>
         {" · "}
-        <a href="https://feature-reacher.example/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline">
+        <a href="https://gentle-bay-0363a0d10.4.azurestaticapps.net/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline">
           Privacy
         </a>
       </footer>

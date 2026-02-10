@@ -21,14 +21,14 @@ export default function TeamsConfigPage() {
 
   const handleSave = () => {
     const contentUrl = startWithDemo
-      ? "https://feature-reacher.example/teams/tab?view=demo"
-      : "https://feature-reacher.example/teams/tab";
+      ? "https://gentle-bay-0363a0d10.4.azurestaticapps.net/teams/tab?view=demo"
+      : "https://gentle-bay-0363a0d10.4.azurestaticapps.net/teams/tab";
 
     notifySuccess({
       entityId: `featurereacher-${Date.now()}`,
       contentUrl,
       suggestedDisplayName: tabName,
-      websiteUrl: "https://feature-reacher.example",
+      websiteUrl: "https://gentle-bay-0363a0d10.4.azurestaticapps.net",
     });
   };
 
