@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+
   /**
    * Security headers configuration.
    * Allows embedding in Microsoft Teams while maintaining security.
