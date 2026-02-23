@@ -78,19 +78,24 @@ export function useAudit(id: PersistedAuditId | null) {
 
   useEffect(() => {
     if (!id) {
-      setAudit(null);
+      if (audit !== null) {
+        // Defer state update to avoid synchronous set during render phase if called early
+        setTimeout(() => setAudit(null), 0);
+      }
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    setTimeout(() => {
+      setLoading(true);
+      setError(null);
+    }, 0);
 
     getStorage()
       .getAudit(id)
       .then(setAudit)
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load audit"))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, audit]);
 
   return { audit, loading, error };
 }

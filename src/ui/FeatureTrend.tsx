@@ -8,7 +8,7 @@ import {
   type TrendSummary,
   type FeatureTrend,
 } from "../analysis/trend";
-import { getStorage } from "../storage";
+import { getStorage, type PersistedAudit } from "../storage";
 
 interface FeatureTrendViewProps {
   className?: string;
@@ -39,7 +39,7 @@ export function FeatureTrendView({ className = "" }: FeatureTrendViewProps) {
         audits.map((a) => storage.getAudit(a.id))
       );
 
-      const validAudits = fullAudits.filter((a) => a !== null) as any[];
+      const validAudits = fullAudits.filter((a) => a !== null) as PersistedAudit[];
       const data = generateTrendData(validAudits);
       setTrendData(data);
       setLoading(false);

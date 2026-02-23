@@ -4,8 +4,7 @@
  */
 
 import { ArtifactId } from "../domain/feature";
-import { Feature, FeatureId } from "../domain/feature";
-import { Diagnosis } from "../domain/diagnosis";
+import { Feature } from "../domain/feature";
 import { RankedFeature, AuditSummary } from "../analysis/ranking";
 
 /**

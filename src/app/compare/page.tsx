@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AuditHistory } from "@/ui/AuditHistory";
 import { AuditCompare } from "@/ui/AuditCompare";
 import { CompareExportButtons } from "@/ui/CompareExportButtons";
 import { useAudit, useSavedAudits } from "@/storage/hooks";
-import { compareAudits, type AuditDiff } from "@/analysis/diff";
+import { compareAudits } from "@/analysis/diff";
 import type { PersistedAuditId } from "@/storage/types";
 
 function ComparePageContent() {
@@ -15,20 +15,17 @@ function ComparePageContent() {
   const baseId = searchParams.get("base");
 
   const [compareId, setCompareId] = useState<PersistedAuditId | null>(null);
-  const [diff, setDiff] = useState<AuditDiff | null>(null);
 
   const { audit: baseAudit, loading: loadingBase } = useAudit(baseId);
   const { audit: compareAudit, loading: loadingCompare } = useAudit(compareId);
   const { audits } = useSavedAudits();
 
   // Generate diff when both audits are loaded
-  useEffect(() => {
+  const diff = useMemo(() => {
     if (baseAudit && compareAudit) {
-      const newDiff = compareAudits(baseAudit, compareAudit);
-      setDiff(newDiff);
-    } else {
-      setDiff(null);
+      return compareAudits(baseAudit, compareAudit);
     }
+    return null;
   }, [baseAudit, compareAudit]);
 
   const handleSelectCompare = (id: PersistedAuditId) => {

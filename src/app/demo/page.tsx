@@ -49,13 +49,6 @@ export default function DemoPage() {
     setIsLoading(false);
   }, []);
 
-  // Auto-run analysis when artifacts are loaded
-  useEffect(() => {
-    if (artifacts.length > 0 && !audit && !isAnalyzing && !isLoading) {
-      runAnalysis();
-    }
-  }, [artifacts, isLoading]);
-
   const runAnalysis = useCallback(() => {
     if (artifacts.length === 0) return;
 
@@ -96,6 +89,13 @@ export default function DemoPage() {
       }
     }, 500); // Slight delay for visual feedback
   }, [artifacts]);
+
+  // Auto-run analysis when artifacts are loaded
+  useEffect(() => {
+    if (artifacts.length > 0 && !audit && !isAnalyzing && !isLoading) {
+      runAnalysis();
+    }
+  }, [artifacts, isLoading, audit, isAnalyzing, runAnalysis]);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -253,7 +253,7 @@ export default function DemoPage() {
             {/* Next steps */}
             <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
               <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
-                What's Next?
+                What&apos;s Next?
               </h3>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <Link

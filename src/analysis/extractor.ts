@@ -5,7 +5,7 @@
  * No ML—just clear, explainable patterns.
  */
 
-import type { Artifact, ArtifactId } from "@/domain";
+import type { Artifact } from "@/domain";
 import {
   type Feature,
   type FeatureId,

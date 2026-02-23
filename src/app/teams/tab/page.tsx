@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { Artifact } from "@/domain";
@@ -60,14 +60,7 @@ function TeamsTabContent() {
     }
   }, [isDemo]);
 
-  // Auto-run analysis when demo artifacts are loaded
-  useEffect(() => {
-    if (isDemo && artifacts.length > 0 && !audit && !isAnalyzing && !isLoading) {
-      runAnalysis();
-    }
-  }, [artifacts, isDemo, isLoading]);
-
-  const runAnalysis = () => {
+  const runAnalysis = useCallback(() => {
     if (artifacts.length === 0) return;
 
     setIsAnalyzing(true);
@@ -106,7 +99,14 @@ function TeamsTabContent() {
         setIsAnalyzing(false);
       }
     }, 300);
-  };
+  }, [artifacts]);
+
+  // Auto-run analysis when demo artifacts are loaded
+  useEffect(() => {
+    if (isDemo && artifacts.length > 0 && !audit && !isAnalyzing && !isLoading) {
+      runAnalysis();
+    }
+  }, [artifacts, isDemo, isLoading, audit, isAnalyzing, runAnalysis]);
 
   // Apply Teams theme
   const themeClasses = theme === "dark"

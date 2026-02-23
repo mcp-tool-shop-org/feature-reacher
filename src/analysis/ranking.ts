@@ -6,7 +6,6 @@
  */
 
 import type { Feature, Evidence, Diagnosis } from "@/domain";
-import { sortDiagnosesByRisk } from "@/domain";
 import type { FeatureScore } from "./scoring";
 import { getPrimaryDiagnosis } from "./diagnose";
 

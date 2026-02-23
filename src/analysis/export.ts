@@ -6,7 +6,7 @@
 
 import type { AdoptionRiskAudit, RankedFeature } from "./ranking";
 import { generateHeadline } from "./ranking";
-import { getActionsForDiagnosis, formatActionAsText } from "./actions";
+import { getActionsForDiagnosis } from "./actions";
 
 /**
  * Generates a plain text summary of the audit.

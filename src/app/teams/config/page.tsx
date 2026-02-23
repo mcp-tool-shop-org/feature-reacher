@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useTeamsContext } from "@/lib/teams";
 
 /**
@@ -142,12 +143,12 @@ export default function TeamsConfigPage() {
             <p className="text-sm text-zinc-600">
               This page is designed for Microsoft Teams tab configuration.
             </p>
-            <a
+            <Link
               href="/"
               className="mt-2 inline-block text-sm text-blue-600 hover:underline"
             >
               Go to main app &rarr;
-            </a>
+            </Link>
           </div>
         )}
       </div>

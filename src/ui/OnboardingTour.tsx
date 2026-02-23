@@ -72,7 +72,7 @@ export function OnboardingTour({ onComplete, forceShow }: OnboardingTourProps) {
   useEffect(() => {
     // Check if tour was already completed
     if (forceShow) {
-      setIsActive(true);
+      setTimeout(() => setIsActive(true), 0);
       return;
     }
 
@@ -199,7 +199,7 @@ function TourHighlight({ selector }: { selector: string }) {
   useEffect(() => {
     const element = document.querySelector(selector);
     if (element) {
-      setRect(element.getBoundingClientRect());
+      setTimeout(() => setRect(element.getBoundingClientRect()), 0);
     }
   }, [selector]);
 

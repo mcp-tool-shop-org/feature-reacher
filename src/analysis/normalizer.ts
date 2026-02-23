@@ -22,16 +22,6 @@ const BOILERPLATE_PATTERNS: RegExp[] = [
 ];
 
 /**
- * Heading patterns to detect and preserve.
- */
-const HEADING_PATTERNS: RegExp[] = [
-  /^#{1,6}\s+(.+)$/gm, // Markdown headings
-  /^(.+)\n[=]{3,}$/gm, // Setext H1
-  /^(.+)\n[-]{3,}$/gm, // Setext H2
-  /^[A-Z][A-Za-z0-9\s]+:$/gm, // Title case with colon
-];
-
-/**
  * Normalizes raw text content for analysis.
  */
 export function normalizeText(rawContent: string): string {

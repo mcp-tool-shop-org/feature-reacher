@@ -9,9 +9,9 @@
  * Output is deterministic and evidence-aware.
  */
 
-import type { Feature, FeatureId } from "../domain/feature";
+import type { FeatureId } from "../domain/feature";
 import type { DiagnosisType } from "../domain/diagnosis";
-import type { RankedFeature, AuditSummary } from "./ranking";
+import type { RankedFeature } from "./ranking";
 import type { PersistedAudit } from "../storage/types";
 
 /**
@@ -211,7 +211,7 @@ export function compareAudits(
     .slice(0, 5);
 
   // Generate headline
-  const headline = generateDiffHeadline(summary, allChanges.length);
+  const headline = generateDiffHeadline(summary);
 
   return {
     baseAuditId: baseAudit.auditId,
@@ -342,8 +342,7 @@ function formatDiagnosis(type: DiagnosisType): string {
  * Generate a headline summarizing the diff.
  */
 function generateDiffHeadline(
-  summary: AuditDiff["summary"],
-  totalFeatures: number
+  summary: AuditDiff["summary"]
 ): string {
   const parts: string[] = [];
 

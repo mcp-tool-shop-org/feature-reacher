@@ -92,10 +92,13 @@ export function useTeamsContext(): TeamsContext & {
     } else if (isIframe) {
       // We're in an iframe but Teams SDK isn't loaded
       // This might still be Teams, so set a fallback
-      setContext((prev) => ({
-        ...prev,
-        isInTeams: true, // Assume Teams if in iframe
-      }));
+      // Use setTimeout to avoid synchronous state updates in effect
+      setTimeout(() => {
+        setContext((prev) => ({
+          ...prev,
+          isInTeams: true, // Assume Teams if in iframe
+        }));
+      }, 0);
     }
   }, []);
 

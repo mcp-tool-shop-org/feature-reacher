@@ -5,7 +5,6 @@
  * Shows when diagnosis changed and risk level movements.
  */
 
-import type { FeatureId } from "../domain/feature";
 import type { DiagnosisType } from "../domain/diagnosis";
 import type { PersistedAudit } from "../storage/types";
 
@@ -104,7 +103,7 @@ export function generateTrendData(audits: PersistedAudit[]): TrendSummary {
   const latestAuditDate = sortedAudits[sortedAudits.length - 1].createdAt;
 
   for (const [name, points] of featureHistory.entries()) {
-    const trend = calculateFeatureTrend(name, points, latestAuditDate);
+    const trend = calculateFeatureTrend(name, points);
     featureTrends.push(trend);
   }
 
@@ -165,8 +164,7 @@ export function generateTrendData(audits: PersistedAudit[]): TrendSummary {
  */
 function calculateFeatureTrend(
   name: string,
-  points: TrendPoint[],
-  latestDate: string
+  points: TrendPoint[]
 ): FeatureTrend {
   const current = points[points.length - 1];
 
