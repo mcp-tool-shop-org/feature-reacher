@@ -1,3 +1,5 @@
+[![CI](https://github.com/mcp-tool-shop-org/feature-reacher/actions/workflows/ci.yml/badge.svg)](https://github.com/mcp-tool-shop-org/feature-reacher/actions/workflows/ci.yml)
+
 # Feature-Reacher
 
 **Surface underutilized features before they become technical debt.**
