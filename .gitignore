@@ -39,3 +39,4 @@ next-env.d.ts
 
 # Temp
 temp_init/
+site/.astro/
