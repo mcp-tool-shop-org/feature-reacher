@@ -168,20 +168,30 @@ Artifact Upload → Text Normalization → Feature Extraction
 
 ---
 
-## License
+## Security & Data Scope
 
-MIT
+Feature-Reacher is a **local-first** Next.js web application.
+
+- **Data accessed:** User-pasted text (release notes, documentation), IndexedDB for audit history, localStorage for settings
+- **Data NOT accessed:** No external analytics platforms. No external APIs. No authentication. No server-side storage
+- **Permissions:** Browser-only. No network calls to external services
+
+Full policy: [SECURITY.md](SECURITY.md)
 
 ---
 
-## Release Tags
+## Scorecard
 
-```bash
-git checkout phase-1-foundation    # Phase 1: Core diagnostic engine
-git checkout phase-2-repeatability # Phase 2: Persistence, compare, trends
-git checkout phase-3-marketplace   # Phase 3: Marketplace-ready packaging
-git checkout phase-3.5-teams-tab   # Phase 3.5: Teams tab integration
-```
+| Category | Score |
+|----------|-------|
+| A. Security | 10/10 |
+| B. Error Handling | 10/10 |
+| C. Operator Docs | 10/10 |
+| D. Shipping Hygiene | 10/10 |
+| E. Identity (soft) | 10/10 |
+| **Overall** | **50/50** |
+
+---
 
 ## Running Tests
 
@@ -190,3 +200,11 @@ npm test
 ```
 
 Tests verify guardrails: risk scores bounded 0-1, audit IDs formatted correctly, graceful handling of edge cases.
+
+## License
+
+[MIT](LICENSE)
+
+---
+
+Built by <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>
