@@ -17,7 +17,7 @@ export const config: SiteConfig = {
     description:
       "Feature-Reacher ingests your product docs and release notes, then produces a ranked Adoption Risk Audit — explainable diagnoses for every feature users may never discover, with cited evidence and copyable actions.",
     primaryCta: { href: "#get-started", label: "Get started" },
-    secondaryCta: { href: "#pipeline", label: "See how it works" },
+    secondaryCta: { href: "handbook/", label: "Read the Handbook" },
     previews: [
       {
         label: "Quick start",
